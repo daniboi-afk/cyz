@@ -24,31 +24,31 @@ app.use(express.json());
 function getCarRecommendation(income) {
   if (income < 20000) {
     return {
-      car: "2015 Honda Civic",
-      reason: "Reliable, low maintenance, great on fuel.",
+      car: "Take the Bus Or Steal a Bike",
+      reason: "you ain't gettting no girl with that money so you dont need a car.",
       priceRange: "Under $12,000",
-      tier: "budget"
+      tier: "fucked"
     };
   } else if (income < 40000) {
     return {
-      car: "2022 Toyota Camry",
+      car: "1999  Toyota Camry",
       reason: "Comfortable, dependable, strong resale value.",
       priceRange: "$25,000 – $30,000",
-      tier: "mid"
+      tier: "Mcdonald's Woker Status"
     };
   } else if (income < 75000) {
     return {
-      car: "2023 BMW 3 Series",
-      reason: "Premium feel, great performance, status symbol.",
+      car: "2023 Toyota Camry",
+      reason: "Reliable, great performance, status symbol.",
       priceRange: "$43,000 – $50,000",
-      tier: "premium"
+      tier: "Great Financial Choice but no girls "
     };
   } else if (income < 150000) {
     return {
-      car: "2024 Porsche Macan",
+      car: "2026 BMW X5",
       reason: "Sporty SUV, luxury interior, weekend warrior.",
       priceRange: "$65,000 – $80,000",
-      tier: "luxury"
+      tier: "luxury, comfortable, might get you a gold digger"
     };
   } else {
     return {
