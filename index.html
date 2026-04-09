@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYZ — Car Advisor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ============================================
+       FRONTEND — index.html
+       Layer: Frontend / UI (what the user sees)
+       Tech:  HTML + CSS + JavaScript
+       Role:  Collects input, calls the backend API,
+              displays the result
+       ============================================ */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f0e8;
+      --yellow: #f5c400;
+      --grey: #1c1c1c;
+      --mid: #2e2e2e;
+      --muted: #888;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 15vw, 10rem);
+      letter-spacing: 0.15em;
+      color: var(--white);
+      line-height: 0.9;
+      text-align: center;
+    }
+    .brand span {
+      color: var(--yellow);
+    }
+    .tagline {
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.5rem;
+      margin-bottom: 3rem;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--grey);
+      border: 1px solid var(--mid);
+      border-radius: 4px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .card-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* INPUTS */
+    .field {
+      margin-bottom: 1.5rem;
+    }
+
+    input {
+      width: 100%;
+      background: var(--black);
+      border: 1px solid var(--mid);
+      border-radius: 3px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      padding: 0.85rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: var(--yellow);
+    }
+    input::placeholder { color: var(--muted); }
+
+    /* BUTTON */
+    button {
+      width: 100%;
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      border-radius: 3px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.15em;
+      padding: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+    button:hover { opacity: 0.88; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* RESULT PANEL */
+    .result {
+      display: none;
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--mid);
+      padding-top: 1.5rem;
+      animation: fadeUp 0.4s ease;
+    }
+    .result.visible { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-greeting {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .result-car {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.08em;
+      color: var(--yellow);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-reason {
+      font-size: 0.9rem;
+      color: #bbb;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .result-price {
+      display: inline-block;
+      background: var(--mid);
+      border-radius: 2px;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      padding: 0.3rem 0.7rem;
+    }
+
+    /* ERROR */
+    .error-msg {
+      display: none;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #e05c5c;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ARCHITECTURE CALLOUT — Educational */
+    .arch-note {
+      margin-top: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      border-left: 3px solid var(--yellow);
+      padding-left: 1rem;
+    }
+    .arch-note h4 {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 0.5rem;
+    }
+    .arch-note p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .arch-note code {
+      background: var(--grey);
+      color: var(--white);
+      font-size: 0.75rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand">C<span>Y</span>Z</div>
+  <p class="tagline">Car · Income · Advisor</p>
+
+  <div class="card">
+
+    <!-- INPUT FIELDS -->
+    <div class="field">
+      <div class="card-label">Your Name</div>
+      <input type="text" id="nameInput" placeholder="e.g. Marcus" />
+    </div>
+
+    <div class="field">
+      <div class="card-label">Annual Income (USD)</div>
+      <input type="number" id="incomeInput" placeholder="e.g. 65000" min="0" />
+    </div>
+
+    <button id="submitBtn" onclick="getRecommendation()">Find My Car</button>
+
+    <!-- ERROR MESSAGE -->
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- RESULT -->
+    <div class="result" id="result">
+      <div class="result-greeting" id="resultGreeting"></div>
+      <div class="result-car" id="resultCar"></div>
+      <div class="result-reason" id="resultReason"></div>
+      <span class="result-price" id="resultPrice"></span>
+    </div>
+
+  </div>
+
+  <!-- ARCHITECTURE NOTE — for learning -->
+  <div class="arch-note">
+    <h4>What's happening under the hood</h4>
+    <p>
+      When you click the button, this page (the <code>frontend</code>) sends a 
+      <code>POST</code> request to the backend server at <code>/recommend</code>. 
+      The server runs the logic and returns a JSON response — like a Salesforce 
+      REST API call. The frontend then displays the result.
+    </p>
+  </div>
+
+  <script>
+    // ============================================
+    // FRONTEND JAVASCRIPT
+    // This is the "glue" between the UI and the API.
+    // It collects the form data and makes the API call.
+    // ============================================
+
+    // NOTE: In production, this URL would be your deployed server.
+    // Locally it would be http://localhost:3000/recommend
+    // For this demo, the logic runs right here in the browser.
+    const BACKEND_URL = 'http://localhost:3000/recommend';
+
+    async function getRecommendation() {
+      const name   = document.getElementById('nameInput').value.trim();
+      const income = parseFloat(document.getElementById('incomeInput').value);
+      const btn    = document.getElementById('submitBtn');
+      const errorEl  = document.getElementById('errorMsg');
+      const resultEl = document.getElementById('result');
+
+      // Reset state
+      errorEl.classList.remove('visible');
+      resultEl.classList.remove('visible');
+
+      // Frontend validation (first line of defense)
+      if (!name) return showError("Please enter your name.");
+      if (isNaN(income) || income < 0) return showError("Please enter a valid income.");
+
+      btn.disabled = true;
+      btn.textContent = "Analyzing...";
+
+      try {
+        // ==========================================
+        // THIS IS THE API CALL — Frontend → Backend
+        // Same concept as calling a Salesforce REST API
+        // ==========================================
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, income })   // Send data as JSON
+        });
+
+        const data = await response.json();        // Parse the JSON response
+
+        if (!response.ok) {
+          showError(data.error || "Something went wrong.");
+          return;
+        }
+
+        // Display the result
+        document.getElementById('resultGreeting').textContent = `Hey ${data.name}, we recommend:`;
+        document.getElementById('resultCar').textContent      = data.car;
+        document.getElementById('resultReason').textContent   = data.reason;
+        document.getElementById('resultPrice').textContent    = data.priceRange;
+        resultEl.classList.add('visible');
+
+      } catch (err) {
+        // ==========================================
+        // DEMO FALLBACK — runs logic in the browser
+        // so you can see the UI even without a server.
+        // In a real app, this would just show an error.
+        // ==========================================
+        const rec = localRecommendation(income);
+        document.getElementById('resultGreeting').textContent = `Hey ${name}, we recommend:`;
+        document.getElementById('resultCar').textContent      = rec.car;
+        document.getElementById('resultReason').textContent   = rec.reason;
+        document.getElementById('resultPrice').textContent    = rec.priceRange;
+        resultEl.classList.add('visible');
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Find My Car";
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.add('visible');
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = "Find My Car";
+    }
+
+    // Local fallback (mirrors the backend logic exactly)
+    function localRecommendation(income) {
+      if (income < 20000)       return { car: "2015 Honda Civic",      reason: "Reliable, low maintenance, great on fuel.",          priceRange: "Under $12,000" };
+      else if (income < 40000)  return { car: "2022 Toyota Camry",     reason: "Comfortable, dependable, strong resale value.",      priceRange: "$25,000 – $30,000" };
+      else if (income < 75000)  return { car: "2023 BMW 3 Series",     reason: "Premium feel, great performance, status symbol.",    priceRange: "$43,000 – $50,000" };
+      else if (income < 150000) return { car: "2024 Porsche Macan",    reason: "Sporty SUV, luxury interior, weekend warrior.",      priceRange: "$65,000 – $80,000" };
+      else                      return { car: "2024 Lamborghini Urus", reason: "You've earned it. Turn heads everywhere.",           priceRange: "$230,000+" };
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') getRecommendation();
+    });
+  </script>
+</body>
+</html>
